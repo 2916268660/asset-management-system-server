@@ -6,7 +6,6 @@ type Router func(r *gin.Engine)
 
 var routers = make([]Router, 0, 8)
 
-
 func Include(router ...Router) {
 	routers = append(routers, router...)
 }

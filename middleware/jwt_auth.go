@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func JWTAuthMiddleWare() func (c *gin.Context){
+func JWTAuthMiddleWare() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusOK, gin.H{
-				"code":2003,
-				"msg": "请求头auth为空",
+				"code": 2003,
+				"msg":  "请求头auth为空",
 			})
 			c.Abort()
 			return
@@ -21,8 +21,8 @@ func JWTAuthMiddleWare() func (c *gin.Context){
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			c.JSON(http.StatusOK, gin.H{
-				"code":2003,
-				"msg": "请求头auth格式有误",
+				"code": 2003,
+				"msg":  "请求头auth格式有误",
 			})
 			c.Abort()
 			return

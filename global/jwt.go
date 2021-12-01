@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const TokenExpireDuration = time.Hour*2
+const TokenExpireDuration = time.Hour * 2
 
 var MySecret = []byte("970107")
 
@@ -16,19 +16,19 @@ type MyClaims struct {
 }
 
 // GetToken 生成token
-func GetToken(username string)(string, error) {
+func GetToken(username string) (string, error) {
 	c := MyClaims{
 		username,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
-			Issuer: "my-project",  //签发人
+			Issuer:    "my-project", //签发人
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 	return token.SignedString(MySecret)
 }
 
-func ParseToken(tokenString string)(*MyClaims, error) {
+func ParseToken(tokenString string) (*MyClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return MySecret, nil
 	})

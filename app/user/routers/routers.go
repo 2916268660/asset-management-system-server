@@ -5,7 +5,7 @@ import (
 	controllers "server/app/user/controllers"
 )
 
-func Routers(r *gin.Engine)  {
+func Routers(r *gin.Engine) {
 	group := r.Group("/v1")
 	{
 		// 登录

@@ -8,7 +8,7 @@ type Error struct {
 	ErrMsg string
 }
 
-func (e *Error) Error ()string {
+func (e *Error) Error() string {
 	return e.ErrMsg
 }
 
@@ -22,7 +22,7 @@ func (e *Error) WithMsg(msg string) *Error {
 	return &err
 }
 
-func NewErr(errNo int, errMsg...string) *Error {
+func NewErr(errNo int, errMsg ...string) *Error {
 	err := &Error{errNo, ErrMsg[errNo]}
 	if len(errMsg) > 0 {
 		err.ErrMsg += "(" + strings.Join(errMsg, "; ") + ")"
@@ -31,18 +31,30 @@ func NewErr(errNo int, errMsg...string) *Error {
 }
 
 const (
-	OK = 2000  //成功
-	UNKNOWN_ERR = 5000 //未知错误
+	OK       = 2000 //成功
+	ARGS_ERR = 2001 //参数有误
+
+	REGISTER_ERR = 40000 //注册用户失败
+
+	UNKNOWN_ERR  = 5000  //未知错误
+	DATABASE_ERR = 50001 //数据库出错,请联系管理员
 )
 
 var ErrMsg = map[int]string{
-	OK: "success",
-	UNKNOWN_ERR : "未知错误",
+	OK:           "success",
+	UNKNOWN_ERR:  "未知错误",
+	ARGS_ERR:     "参数错误",
+	REGISTER_ERR: "注册用户失败",
+	DATABASE_ERR: "数据库出错,请联系管理员",
 }
 
 var (
 	SUCCESS = NewErr(OK)
-	ERRUNKNOWN = NewErr(UNKNOWN_ERR)
+
+	ERRARGS = NewErr(ARGS_ERR)
+
+	ERRREGISTER = NewErr(REGISTER_ERR)
+
+	ERRUNKNOWN  = NewErr(UNKNOWN_ERR)
+	ERRDATABASE = NewErr(DATABASE_ERR)
 )
-
-

@@ -1,16 +1,21 @@
 package main
 
 import (
-	routers2 "server/app/user/routers"
-	routers3 "server/app/work/routers"
+	"fmt"
+	"log"
+	userRouter "server/app/user/routers"
+	"server/global"
+	"server/init/db"
 	"server/routers"
 )
 
 func main() {
-	routers.Include(routers2.Routers, routers3.Routers)
+	if err := global.InitTrans("zh"); err != nil {
+		log.Println(fmt.Sprintf("init trans failed, err=%v\n", err))
+	}
+	db.InitDB()
+	routers.Include(userRouter.Routers)
 	r := routers.Init()
-	//r.GET("/*", middleware.JWTAuthMiddleWare())
 
 	r.Run()
-
 }
