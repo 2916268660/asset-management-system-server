@@ -18,7 +18,7 @@ func (e *Error) String() string {
 
 func (e *Error) WithMsg(msg string) *Error {
 	err := *e
-	err.ErrMsg = msg
+	err.ErrMsg += msg
 	return &err
 }
 

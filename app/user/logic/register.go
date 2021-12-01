@@ -1,9 +1,6 @@
 package logic
 
 import (
-	"fmt"
-	"log"
-	"server/global"
 	model "server/models/user_management"
 	"server/utils"
 	"time"
@@ -37,8 +34,7 @@ func (u *UserLogic) RegisterUser(ctx *gin.Context, info *UserArgsForRegister) er
 	}
 	err := userModel.SaveUser(ctx, user)
 	if err != nil {
-		log.Println(fmt.Sprintf("save user_management failed, err=%v", err))
-		return global.ERRREGISTER.WithMsg("注册用户失败")
+		return err
 	}
 	return nil
 }

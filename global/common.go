@@ -3,6 +3,7 @@ package global
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type ResponseData struct {
@@ -11,6 +12,7 @@ type ResponseData struct {
 	Data interface{}
 }
 
+// Response 统一响应
 func Response(ctx *gin.Context, obj interface{}, err error) {
 	res := &ResponseData{}
 	if err != nil {
@@ -29,4 +31,13 @@ func Response(ctx *gin.Context, obj interface{}, err error) {
 	res.Data = obj
 	ctx.JSON(http.StatusOK, res)
 	return
+}
+
+// 解析validator中的错误，去除结构体前缀
+func ReMoveTopStruct(m map[string]string) map[string]string {
+	res := make(map[string]string)
+	for field, err := range m {
+		res[field[strings.Index(field, ".")+1:]] = err
+	}
+	return res
 }

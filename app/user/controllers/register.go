@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"server/app/user/logic"
 	"server/global"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 var userLogic = &logic.UserLogic{}
@@ -19,11 +19,11 @@ func RegisterUser(ctx *gin.Context) {
 	if err != nil {
 		errs, ok := err.(validator.ValidationErrors)
 		if !ok {
-			log.Println(fmt.Sprintf("提交的信息有误,请仔细检查||err=%v", err))
-			global.Response(ctx, nil, global.ERRARGS)
+			log.Println(fmt.Sprintf("submited args err||err=%v", err))
+			global.Response(ctx, nil, global.ERRARGS.WithMsg("提交的信息有误,请仔细检查"))
 			return
 		}
-		global.Response(ctx, errs.Translate(global.Trans), global.ERRARGS)
+		global.Response(ctx, global.ReMoveTopStruct(errs.Translate(global.Trans)), global.ERRARGS)
 		return
 	}
 	// 注册用户
