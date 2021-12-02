@@ -1,10 +1,10 @@
-package user_management
+package user
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"server/init/db"
+	"server/global"
 	"time"
 )
 
@@ -17,12 +17,12 @@ type User struct {
 	UpdateTime   time.Time //更新时间
 }
 
-type UserModel struct {
+type RegisterModel struct {
 }
 
 // SaveUser 保存用户
-func (u *UserModel) SaveUser(ctx *gin.Context, user *User) error {
-	err := db.GlobalDB.Create(&user).Error
+func (u *RegisterModel) SaveUser(ctx *gin.Context, user *User) error {
+	err := global.GLOBAL_DB.Create(&user).Error
 	if err != nil {
 		log.Println(fmt.Sprintf("create user_management failed, err=%v", err))
 		return err

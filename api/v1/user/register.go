@@ -1,20 +1,20 @@
-package controllers
+package user
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"log"
-	"server/app/user/logic"
 	"server/global"
-
-	"github.com/gin-gonic/gin"
+	"server/models/common/request/user"
 )
 
-var userLogic = &logic.UserLogic{}
+type RegisterApi struct {
+}
 
 // RegisterUser 注册用户
-func RegisterUser(ctx *gin.Context) {
-	var userInfo logic.UserArgsForRegister
+func (r *RegisterApi)RegisterUser(ctx *gin.Context) {
+	var userInfo user.RegisterUserInfo
 	err := ctx.ShouldBind(&userInfo)
 	if err != nil {
 		errs, ok := err.(validator.ValidationErrors)
@@ -27,10 +27,11 @@ func RegisterUser(ctx *gin.Context) {
 		return
 	}
 	// 注册用户
-	err = userLogic.RegisterUser(ctx, &userInfo)
+	err = registerLogic.RegisterUser(ctx, &userInfo)
 	if err != nil {
 		global.Response(ctx, nil, err)
 		return
 	}
 	global.Response(ctx, nil, nil)
 }
+

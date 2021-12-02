@@ -1,4 +1,4 @@
-package db
+package initialize
 
 import (
 	"fmt"
@@ -8,9 +8,8 @@ import (
 	"log"
 )
 
-var GlobalDB *gorm.DB
 
-func InitDB() {
+func InitDB() *gorm.DB{
 	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/server?charset=utf8mb4&parseTime=True&loc=Local", "root", "wS970107.")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
@@ -19,7 +18,7 @@ func InitDB() {
 	})
 	if err != nil {
 		log.Println(fmt.Sprintf("mysql connect fail||err=%v", err))
-		return
+		return nil
 	}
-	GlobalDB = db
+	return db
 }

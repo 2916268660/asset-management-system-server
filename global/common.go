@@ -33,7 +33,7 @@ func Response(ctx *gin.Context, obj interface{}, err error) {
 	return
 }
 
-// 解析validator中的错误，去除结构体前缀
+// ReMoveTopStruct 解析validator中的错误，去除结构体前缀
 func ReMoveTopStruct(m map[string]string) map[string]string {
 	res := make(map[string]string)
 	for field, err := range m {
