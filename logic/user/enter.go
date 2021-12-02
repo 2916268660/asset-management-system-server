@@ -8,3 +8,4 @@ type UserGroup struct {
 }
 
 var registerModel = model.ModelGroupApp.RegisterModel
+var loginModel = model.ModelGroupApp.LoginModel

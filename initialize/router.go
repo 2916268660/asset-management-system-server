@@ -13,6 +13,7 @@ func InitRouters() *gin.Engine {
 	userRouters := routers.RoutersGroupApp.UserRoutersGroup
 	{
 		userRouters.InitRegisterRouters(privateRouter)
+		userRouters.InitLoginRouters(privateRouter)
 	}
 
 	return router

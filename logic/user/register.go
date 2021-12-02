@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"server/models/common/request/user"
-	model "server/models/user"
+	"server/models/common"
+	"server/models/common/request"
 	"server/utils"
 	"time"
 )
@@ -11,13 +11,9 @@ import (
 type RegisterLogic struct {
 }
 
-
-
-
-func (u *RegisterLogic) RegisterUser(ctx *gin.Context, info *user.RegisterUserInfo) error {
-	// 验证二维码是否正确
+func (u *RegisterLogic) RegisterUser(ctx *gin.Context, info *request.RegisterUserInfo) error {
 	now := time.Now()
-	user := &model.User{
+	user := &common.User{
 		UserName:     info.UserName,
 		Password:     utils.Encrypt(info.Password),
 		EmailOrPhone: info.EmailOrPhone,

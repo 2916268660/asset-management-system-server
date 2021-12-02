@@ -8,3 +8,4 @@ type RoutersGroup struct {
 }
 
 var registerApi = v1.ApiGroupApp.UserApi.RegisterApi
+var loginApi = v1.ApiGroupApp.UserApi.LoginApi

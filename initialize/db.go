@@ -8,8 +8,7 @@ import (
 	"log"
 )
 
-
-func InitDB() *gorm.DB{
+func InitDB() *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/server?charset=utf8mb4&parseTime=True&loc=Local", "root", "wS970107.")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{

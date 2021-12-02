@@ -7,5 +7,3 @@ type routersGroup struct {
 }
 
 var RoutersGroupApp = new(routersGroup)
-
-

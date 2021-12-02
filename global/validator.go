@@ -24,7 +24,7 @@ func InitTrans(locale string) (err error) {
 		// 注册一个获取struct的 json tag的方法
 		v.RegisterTagNameFunc(func(field reflect.StructField) string {
 			jsonTagName := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
-			if jsonTagName == "-"{
+			if jsonTagName == "-" {
 				return ""
 			}
 			return jsonTagName
