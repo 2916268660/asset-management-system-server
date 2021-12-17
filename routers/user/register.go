@@ -6,8 +6,9 @@ type RegisterRouters struct {
 }
 
 func (r *RegisterRouters) InitRegisterRouters(router *gin.RouterGroup) {
-	registerRouter := router.Group("register")
+	group := router.Group("register")
 	{
-		registerRouter.POST("", registerApi.RegisterUser)
+		group.POST("", registerApi.RegisterUser)
+		group.POST("validateCode", validateCodeApi.SendValidateCode)
 	}
 }

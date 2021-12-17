@@ -1,9 +1,13 @@
 package logic
 
-import "server/logic/user"
+import (
+	"server/logic/user"
+	"server/logic/validate_code"
+)
 
 type logicGroup struct {
-	UserLogic user.UserGroup
+	UserLogic         user.LogicGroup
+	ValidateCodeLogic validate_code.ValidateCodeLogic
 }
 
 var LogicGroupApp = new(logicGroup)

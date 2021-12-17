@@ -1,0 +1,46 @@
+info:
+  contact: {}
+paths:
+  /v1/login:
+    post:
+      description: 用户登录.
+      parameters:
+      - description: 账号
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: 密码
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: 邮箱
+        in: body
+        name: email
+        schema:
+          type: string
+      - description: 电话
+        in: body
+        name: phone
+        schema:
+          type: string
+      - description: 登录方式
+        in: body
+        name: way
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":2000,"data":"token","msg":"成功||登录成功"}'
+          schema:
+            type: string
+      summary: 用户登录API
+      tags:
+      - 用户
+swagger: "2.0"

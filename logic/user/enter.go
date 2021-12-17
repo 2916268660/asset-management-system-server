@@ -1,11 +1,13 @@
 package user
 
-import model "server/models/user"
+import (
+	"server/models"
+)
 
-type UserGroup struct {
+type LogicGroup struct {
 	RegisterLogic
 	LoginLogic
+	DetailsLogic
 }
 
-var registerModel = model.ModelGroupApp.RegisterModel
-var loginModel = model.ModelGroupApp.LoginModel
+var userModel = models.ModelGroupApp.UserModel

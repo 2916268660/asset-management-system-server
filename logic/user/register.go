@@ -1,7 +1,10 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
+	"server/global"
 	"server/models/common"
 	"server/models/common/request"
 	"server/utils"
@@ -14,15 +17,18 @@ type RegisterLogic struct {
 func (u *RegisterLogic) RegisterUser(ctx *gin.Context, info *request.RegisterUserInfo) error {
 	now := time.Now()
 	user := &common.User{
-		UserName:     info.UserName,
-		Password:     utils.Encrypt(info.Password),
-		EmailOrPhone: info.EmailOrPhone,
-		CreateTime:   now,
-		UpdateTime:   now,
+		UserName:   info.UserName,
+		StuId:      info.StuId,
+		Password:   utils.Encrypt(info.Password),
+		Email:      info.Email,
+		Phone:      info.Phone,
+		CreateTime: now,
+		UpdateTime: now,
 	}
-	err := registerModel.SaveUser(ctx, user)
+	err := userModel.SaveUser(ctx, user)
 	if err != nil {
-		return err
+		log.Println(fmt.Sprintf("username=%s exist, register failed", info.UserName))
+		return global.ERRUSERNAMEISEXIST
 	}
 	return nil
 }

@@ -20,7 +20,6 @@ func Response(ctx *gin.Context, obj interface{}, err error) {
 		case *Error:
 			res.Code = e.ErrNo
 			res.Msg = e.ErrMsg
-			res.Data = e.ErrData
 		default:
 			res.Code = ERRUNKNOWN.ErrNo
 			res.Msg = ERRUNKNOWN.ErrMsg

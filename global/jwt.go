@@ -1,27 +1,26 @@
 package global
 
 import (
-	"errors"
 	"github.com/golang-jwt/jwt"
 	"time"
 )
 
-const TokenExpireDuration = time.Hour * 2
+const TokenExpireDuration = time.Hour * 12
 
-var MySecret = []byte("970107")
+var MySecret = []byte("a8x0sd.")
 
 type MyClaims struct {
-	Username string `json:"username"`
+	StuId string `json:"stuId"`
 	jwt.StandardClaims
 }
 
 // GetToken 生成token
-func GetToken(username string) (string, error) {
+func GetToken(stuId string) (string, error) {
 	c := MyClaims{
-		username,
+		stuId,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
-			Issuer:    "my-project", //签发人
+			Issuer:    "root", //签发人
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
@@ -38,5 +37,5 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {
 		return claims, nil
 	}
-	return nil, errors.New("invalid token")
+	return nil, err
 }

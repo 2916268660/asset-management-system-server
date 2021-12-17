@@ -9,5 +9,6 @@ func (l *LoginRouters) InitLoginRouters(router *gin.RouterGroup) {
 	group := router.Group("login")
 	{
 		group.POST("", loginApi.Login)
+		group.POST("validateCode", validateCodeApi.SendValidateCode)
 	}
 }
