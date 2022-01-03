@@ -1,9 +1,13 @@
 package models
 
-import "server/models/user"
+import (
+	"server/models/asset"
+	"server/models/user"
+)
 
 type modeGroup struct {
-	UserModel user.UserModel
+	UserModel user.ManagementModel
+	AssetMode asset.ManagementModel
 }
 
 var ModelGroupApp = new(modeGroup)

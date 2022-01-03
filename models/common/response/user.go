@@ -2,7 +2,7 @@ package response
 
 type UserInfo struct {
 	UserName string `json:"userName"`
-	StuId    string `json:"stuId"`
+	UserId   string `json:"userId"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 }

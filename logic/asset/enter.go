@@ -1,11 +1,10 @@
-package user
+package asset
 
-import (
-	"server/models"
-)
+import "server/models"
 
 type LogicGroup struct {
 	ManagementLogic
 }
 
 var userModel = models.ModelGroupApp.UserModel
+var assetModel = models.ModelGroupApp.AssetMode

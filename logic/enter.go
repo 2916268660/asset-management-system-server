@@ -1,13 +1,15 @@
 package logic
 
 import (
+	"server/logic/asset"
 	"server/logic/user"
-	"server/logic/validate_code"
+	"server/logic/utils"
 )
 
 type logicGroup struct {
-	UserLogic         user.LogicGroup
-	ValidateCodeLogic validate_code.ValidateCodeLogic
+	UserLogic  user.LogicGroup
+	UtilsLogic utils.LogicGroup
+	AssetLogic asset.LogicGroup
 }
 
 var LogicGroupApp = new(logicGroup)

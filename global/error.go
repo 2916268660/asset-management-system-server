@@ -41,6 +41,8 @@ const (
 	PASSWORD_ERR         = 4004 //密码错误
 	SENDCODE_ERR         = 4005 //发送验证码错误
 
+	CREATETASK_ERR = 4100 //发送申请失败
+
 	UNKNOWN_ERR       = 5000 //未知错误
 	DATABASE_ERR      = 5001 //数据库出错,请联系管理员
 	TOKENGENERATE_ERR = 5002 //生成token错误
@@ -62,6 +64,8 @@ var ErrMsg = map[int]string{
 	PASSWORD_ERR:         "密码错误",
 	SENDCODE_ERR:         "发送验证码错误",
 
+	CREATETASK_ERR: "发送申请失败",
+
 	UNKNOWN_ERR:       "未知错误",
 	DATABASE_ERR:      "数据库出错,请联系管理员",
 	TOKENGENERATE_ERR: "token生成错误",
@@ -82,6 +86,8 @@ var (
 	ERRGETUSERINFO      = NewErr(GETUSERINFO_ERR)      // 获取用户信息失败
 	ERRPASSWORD         = NewErr(PASSWORD_ERR)         // 密码错误
 	ERRSENDCODE         = NewErr(SENDCODE_ERR)         //发送验证码错误
+
+	ERRCREATETASK = NewErr(CREATETASK_ERR) // 发送申请失败
 
 	ERRUNKNOWN       = NewErr(UNKNOWN_ERR)       // 未知错误
 	ERRDATABASE      = NewErr(DATABASE_ERR)      // 数据库出错,请联系管理员

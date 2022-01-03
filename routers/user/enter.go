@@ -2,13 +2,9 @@ package user
 
 import v1 "server/api/v1"
 
-type RoutersGroup struct {
-	LoginRouters
-	RegisterRouters
-	DetailsRouters
+type RouterGroup struct {
+	ManagementRouter
 }
 
-var registerApi = v1.ApiGroupApp.UserApi.RegisterApi
-var loginApi = v1.ApiGroupApp.UserApi.LoginApi
-var validateCodeApi = v1.ApiGroupApp.ValidateCodeApi
-var detailsApi = v1.ApiGroupApp.UserApi.DetailsApi
+var userApi = v1.ApiGroupApp.UserApi
+var validateApi = v1.ApiGroupApp.ValidateCodeApi

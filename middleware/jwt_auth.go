@@ -31,7 +31,7 @@ func JWTAuthMiddleWare() func(ctx *gin.Context) {
 			ctx.Abort()
 			return
 		}
-		ctx.Set("stuId", mc.StuId)
+		ctx.Set("userId", mc.UserId)
 		ctx.Next()
 	}
 }
