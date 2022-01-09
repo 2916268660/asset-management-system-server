@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -27,7 +28,7 @@ func (m *ManagementLogic) Login(ctx *gin.Context, loginInfo *request.LoginUserIn
 	// 获取token
 	token, err = global.GetToken(user)
 	if err != nil {
-		return "", global.ERRTOKENGENERATE
+		return "", errors.New("生成token失败")
 	}
 	return token, nil
 }
@@ -35,14 +36,14 @@ func (m *ManagementLogic) Login(ctx *gin.Context, loginInfo *request.LoginUserIn
 // 通过用户名登录
 func loginByUserName(ctx *gin.Context, loginInfo *request.LoginUserInfo) (user *common.User, err error) {
 	if loginInfo.UserId == "" || loginInfo.Password == "" {
-		return nil, global.ERRARGS.WithMsg("学号或密码不能为空")
+		return nil, errors.New("学号或密码不能为空")
 	}
 	user, err = userModel.GetUserByUserId(ctx, loginInfo.UserId)
 	if err != nil || user == nil {
-		return nil, global.ERRUSERNAMENOTEXIST
+		return nil, errors.New("用户不存在")
 	}
 	if user.Password != utils.Encrypt(loginInfo.Password) {
-		return nil, global.ERRPASSWORD
+		return nil, errors.New("密码错误,请重新输入")
 	}
 	return
 }
@@ -65,10 +66,12 @@ func (m *ManagementLogic) RegisterUser(ctx *gin.Context, info *request.RegisterU
 		CreateTime: now,
 		UpdateTime: now,
 	}
+	// TODO 判断用户是否已经存在
+
 	err = userModel.SaveUser(ctx, user)
 	if err != nil {
 		log.Println(fmt.Sprintf("userId=%s exist, register failed", info.UserId))
-		return global.ERRUSERNAMEISEXIST
+		return errors.New("注册失败")
 	}
 	return nil
 }
@@ -76,24 +79,24 @@ func (m *ManagementLogic) RegisterUser(ctx *gin.Context, info *request.RegisterU
 // 前置校验
 func preCheck(ctx *gin.Context, userInfo *request.RegisterUserInfo) error {
 	if userInfo == nil {
-		return global.ERRARGS
+		return errors.New("参数有误")
 	}
 	switch "" {
 	case userInfo.UserId:
-		return global.ERRARGS.WithMsg("账号不能为空")
+		return errors.New("账号不能为空")
 	case userInfo.UserName:
-		return global.ERRARGS.WithMsg("姓名不能为空")
+		return errors.New("姓名不能为空")
 	case userInfo.Password:
-		return global.ERRARGS.WithMsg("密码不能为空")
+		return errors.New("密码不能为空")
 	case userInfo.RePassword:
-		return global.ERRARGS.WithMsg("确认密码不能为空")
+		return errors.New("确认密码不能为空")
 	case userInfo.Phone:
-		return global.ERRARGS.WithMsg("联系方式不能为空")
+		return errors.New("联系方式不能为空")
 	case userInfo.Department:
-		return global.ERRARGS.WithMsg("所属部门不能为空")
+		return errors.New("所属部门不能为空")
 	}
 	if userInfo.Password != userInfo.RePassword {
-		return global.ERRARGS.WithMsg("输入的两次密码不一致")
+		return errors.New("输入的两次密码不一致")
 	}
 	return nil
 }
@@ -103,7 +106,7 @@ func (m *ManagementLogic) GetUserInfo(ctx *gin.Context, userId string) (*respons
 	user, err := userModel.GetUserByUserId(ctx, userId)
 	if err != nil {
 		log.Println(fmt.Sprintf("userId=%s get userInfo failed, err=%v", userId, err))
-		return nil, global.ERRGETUSERINFO
+		return nil, errors.New("获取用户信息失败")
 	}
 	userInfo := &response.UserInfo{
 		UserName: user.UserName,

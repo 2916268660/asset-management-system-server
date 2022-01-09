@@ -49,6 +49,3 @@ const (
 	WaitRepair             // 待维修
 	Repaired               // 维修完成
 )
-
-// md5盐
-const Solt = "kjh1k2"

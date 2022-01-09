@@ -17,3 +17,10 @@ type ApplyRepairForm struct {
 	Assets  []string
 	Remake  string
 }
+
+type AssetInfo struct {
+	Category string  `json:"category"`
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Provide  string  `json:"provide"`
+}

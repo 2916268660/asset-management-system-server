@@ -1,12 +1,11 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-ini/ini"
-	"log"
-	"server/global"
-
 	"gopkg.in/mail.v2"
+	"log"
 )
 
 var (
@@ -55,7 +54,7 @@ func (e *EmailRequest) SendEmail() error {
 	err := dialer.DialAndSend(message)
 	if err != nil {
 		log.Println(fmt.Sprintf("send email failed || err=%v", err))
-		return global.ERRSENDEMAIL
+		return errors.New("发送邮件失败")
 	}
 	return nil
 }

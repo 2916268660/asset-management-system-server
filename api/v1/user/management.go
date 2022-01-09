@@ -6,6 +6,8 @@ import (
 	"log"
 	"server/global"
 	"server/models/common/request"
+	"server/models/common/response"
+	"server/utils"
 )
 
 type ManagementApi struct {
@@ -15,20 +17,20 @@ type ManagementApi struct {
 func (m *ManagementApi) Login(ctx *gin.Context) {
 	var userInfo request.LoginUserInfo
 	if err := ctx.ShouldBind(&userInfo); err != nil {
-		global.Response(ctx, nil, global.ERRARGS.WithMsg("账号或密码错误"))
+		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
 		return
 	}
 	if userInfo.Way <= 0 {
-		global.Response(ctx, nil, global.ERRARGS.WithMsg("登录方式错误"))
+		global.FailWithMsg(ctx, "登录方式错误")
 		return
 	}
 	// 登录
 	token, err := userLogic.Login(ctx, &userInfo)
 	if err != nil {
-		global.Response(ctx, nil, err)
+		global.FailWithMsg(ctx, err.Error())
 		return
 	}
-	global.Response(ctx, map[string]string{"token": "Bearer " + token}, global.SUCCESS.WithMsg("登录成功"))
+	global.OkWithDetails(ctx, "登录成功", map[string]string{"token": "Bearer " + token})
 }
 
 // RegisterUser 注册用户
@@ -37,25 +39,30 @@ func (m *ManagementApi) RegisterUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(&userInfo)
 	if err != nil {
 		log.Println(fmt.Sprintf("submited args err||err=%v", err))
-		global.Response(ctx, nil, global.ERRARGS.WithMsg("提交的信息有误,请仔细检查"))
+		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
 		return
 	}
 	// 注册用户
 	err = userLogic.RegisterUser(ctx, &userInfo)
 	if err != nil {
-		global.Response(ctx, nil, err)
+		global.FailWithMsg(ctx, err.Error())
 		return
 	}
-	global.Response(ctx, nil, nil)
+	global.OkWithMsg(ctx, "注册成功")
 }
 
 // GetUserInfo 获取用户相信信息
 func (m *ManagementApi) GetUserInfo(ctx *gin.Context) {
-	userId, ok := ctx.Get("userId")
-	if !ok {
-		global.Response(ctx, nil, global.ERRGETUSERINFO)
+	claims, err := utils.GetClaims(ctx)
+	if err != nil {
+		global.FailWithMsg(ctx, err.Error())
 		return
 	}
-	userInfo, err := userLogic.GetUserInfo(ctx, userId.(string))
-	global.Response(ctx, userInfo, err)
+	global.OkWithData(ctx, response.UserInfo{
+		UserName:   claims.UserName,
+		UserId:     claims.UserId,
+		Email:      claims.Email,
+		Phone:      claims.Phone,
+		Department: claims.Department,
+	})
 }

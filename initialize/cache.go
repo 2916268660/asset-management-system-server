@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis"
@@ -36,7 +37,7 @@ func InitCache() error {
 	_, err := global.GLOBAL_CACHE.Ping().Result()
 	if err != nil {
 		log.Println(fmt.Sprintf("redis ping failed, err=%v", err))
-		return global.ERRCACHE
+		return errors.New("初始化redis失败")
 	}
 	return nil
 }

@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"math/rand"
-	"server/global"
 	"strings"
 	"time"
 )
@@ -22,8 +21,11 @@ func GetValidateCode() string {
 	return sb.String()
 }
 
+// md5盐
+const solt = "kjh1k2"
+
 // Encrypt md5加密
 func Encrypt(password string) string {
-	hash := md5.Sum([]byte(global.Solt + "|" + password))
+	hash := md5.Sum([]byte(solt + "|" + password))
 	return fmt.Sprintf("%x", hash)
 }

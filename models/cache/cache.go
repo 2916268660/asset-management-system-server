@@ -11,7 +11,7 @@ import (
 func SetKey(key, value string, expire time.Duration) error {
 	if err := global.GLOBAL_CACHE.Set(key, value, expire).Err(); err != nil {
 		log.Println(fmt.Sprintf("set key{%s} value{%s} failed, err=%v", key, value, err))
-		return global.ERRCACHE.WithMsg("设置缓存错误")
+		return err
 	}
 	return nil
 }
@@ -21,7 +21,7 @@ func GetKey(key string) (value string, err error) {
 	value, err = global.GLOBAL_CACHE.Get(key).Result()
 	if err != nil {
 		log.Println(fmt.Sprintf("get key{%s} failed, err=%v", key, err))
-		return "", global.ERRCACHE.WithMsg("获取缓存错误")
+		return "", err
 	}
 	return
 }

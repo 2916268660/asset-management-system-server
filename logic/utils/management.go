@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -38,13 +39,13 @@ func sendValidateCodeByEmail(ctx *gin.Context, email string) error {
 	// 如果缓存中还存在，则返回，等待过期再进行缓存
 	ok := cache.IsExistKey(fmt.Sprintf(codeCachePre, email))
 	if ok {
-		return global.ERRSENDCODE.WithMsg("发送验证码过于频繁")
+		return errors.New("发送验证码过于频繁")
 	}
 	// 放缓存，存活60s
 	err := cache.SetKey(fmt.Sprintf(codeCachePre, email), code, time.Second*60)
 	if err != nil {
 		log.Println(fmt.Sprintf("缓存验证码失败,err=%v", err))
-		return err
+		return errors.New("缓存验证码失败")
 	}
 	// 将验证码发送邮箱
 	send := &utils.EmailRequest{
@@ -56,7 +57,7 @@ func sendValidateCodeByEmail(ctx *gin.Context, email string) error {
 	}
 	err = send.SendEmail()
 	if err != nil {
-		return global.ERRSENDEMAIL
+		return errors.New("发送验证码失败")
 	}
 	return nil
 }

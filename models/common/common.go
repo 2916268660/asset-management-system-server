@@ -6,9 +6,11 @@ import (
 )
 
 type MyClaims struct {
-	UserId   string `json:"userId"`
-	UserName string `json:"userName"`
-	Phone    string `json:"phone"`
+	UserId     string `json:"userId"`
+	UserName   string `json:"userName"`
+	Email      string `json:"email"`
+	Phone      string `json:"phone"`
+	Department string `json:"department"`
 	jwt.StandardClaims
 }
 
@@ -34,7 +36,7 @@ type AssetDetails struct {
 	Category   int       // 资产品类
 	Name       string    // 资产名称
 	Status     int       // 资产状态
-	Price      int       // 价格（只允许存整数）
+	Price      float64   // 价格
 	Provide    string    // 采购地
 	CreateTime time.Time // 采购时间
 	UpdateTime time.Time // 更新时间

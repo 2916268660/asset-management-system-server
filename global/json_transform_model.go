@@ -9,7 +9,7 @@ import (
 
 type JSON json.RawMessage
 
-// 实现 sql.Scanner 接口，Scan 将 value 扫描至 Jsonb
+// Scan 实现 sql.Scanner 接口，Scan 将 value 扫描至 Jsonb
 func (j *JSON) Scan(value interface{}) error {
 	bytes, ok := value.([]byte)
 	if !ok {
@@ -22,7 +22,7 @@ func (j *JSON) Scan(value interface{}) error {
 	return err
 }
 
-// 实现 driver.Valuer 接口，Value 返回 json value
+// Value 实现 driver.Valuer 接口，Value 返回 json value
 func (j JSON) Value() (driver.Value, error) {
 	if len(j) == 0 {
 		return nil, nil

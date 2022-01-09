@@ -11,7 +11,9 @@ func GetToken(user *common.User) (string, error) {
 	c := common.MyClaims{
 		user.UserId,
 		user.UserName,
+		user.Email,
 		user.Phone,
+		user.Department,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
 			Issuer:    "root", //签发人

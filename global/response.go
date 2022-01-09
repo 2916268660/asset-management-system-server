@@ -3,7 +3,6 @@ package global
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
 
 type ResponseData struct {
@@ -12,32 +11,43 @@ type ResponseData struct {
 	Data interface{}
 }
 
-// Response 统一响应
-func Response(ctx *gin.Context, obj interface{}, err error) {
-	res := &ResponseData{}
-	if err != nil {
-		switch e := err.(type) {
-		case *Error:
-			res.Code = e.ErrNo
-			res.Msg = e.ErrMsg
-		default:
-			res.Code = ERRUNKNOWN.ErrNo
-			res.Msg = ERRUNKNOWN.ErrMsg
-		}
-	} else {
-		res.Code = SUCCESS.ErrNo
-		res.Msg = SUCCESS.ErrMsg
-	}
-	res.Data = obj
-	ctx.JSON(http.StatusOK, res)
-	return
+const (
+	SUCCESS = 0
+	ERROR   = 500
+)
+
+func result(ctx *gin.Context, code int, msg string, data interface{}) {
+	ctx.JSON(http.StatusOK, ResponseData{
+		code,
+		msg,
+		data,
+	})
 }
 
-// ReMoveTopStruct 解析validator中的错误，去除结构体前缀
-func ReMoveTopStruct(m map[string]string) map[string]string {
-	res := make(map[string]string)
-	for field, err := range m {
-		res[field[strings.Index(field, ".")+1:]] = err
-	}
-	return res
+func Ok(ctx *gin.Context) {
+	result(ctx, SUCCESS, "操作成功", nil)
+}
+
+func OkWithMsg(ctx *gin.Context, msg string) {
+	result(ctx, SUCCESS, msg, nil)
+}
+
+func OkWithData(ctx *gin.Context, data interface{}) {
+	result(ctx, SUCCESS, "操作成功", data)
+}
+
+func OkWithDetails(ctx *gin.Context, msg string, data interface{}) {
+	result(ctx, SUCCESS, msg, data)
+}
+
+func Fail(ctx *gin.Context) {
+	result(ctx, ERROR, "操作失败", nil)
+}
+
+func FailWithMsg(ctx *gin.Context, msg string) {
+	result(ctx, ERROR, msg, nil)
+}
+
+func FailWithDetails(ctx *gin.Context, msg string, data interface{}) {
+	result(ctx, ERROR, msg, data)
 }

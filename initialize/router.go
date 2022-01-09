@@ -2,7 +2,6 @@ package initialize
 
 import (
 	"github.com/gin-gonic/gin"
-	_ "server/docs"
 	"server/routers"
 )
 

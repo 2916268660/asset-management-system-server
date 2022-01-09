@@ -19,7 +19,7 @@ func (m *ManagementModel) GetUserByUserId(ctx *gin.Context, studId string) (user
 		return nil, err
 	}
 	if user == nil {
-		return nil, global.ERRGETUSERINFO
+		return nil, err
 	}
 	return user, nil
 }
