@@ -2,14 +2,16 @@ package v1
 
 import (
 	"server/api/v1/asset"
+	"server/api/v1/charger"
+	"server/api/v1/common"
 	"server/api/v1/user"
-	"server/api/v1/utils"
 )
 
 type apiGroup struct {
-	UserApi         user.ApiGroup
-	ValidateCodeApi utils.ApiGroup
-	AssetApi        asset.ApiGroup
+	UserApi    user.ApiGroup
+	CommonApi  common.ApiGroup
+	AssetApi   asset.ApiGroup
+	ChargerApi charger.ApiGroup
 }
 
 var ApiGroupApp = new(apiGroup)

@@ -1,12 +1,11 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
+	"go.uber.org/zap"
 	"server/global"
-	"server/models/common/request"
-	"server/models/common/response"
+	"server/model/request"
+	"server/model/response"
 	"server/utils"
 )
 
@@ -17,6 +16,7 @@ type ManagementApi struct {
 func (m *ManagementApi) Login(ctx *gin.Context) {
 	var userInfo request.LoginUserInfo
 	if err := ctx.ShouldBind(&userInfo); err != nil {
+		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
 		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
 		return
 	}
@@ -38,13 +38,14 @@ func (m *ManagementApi) RegisterUser(ctx *gin.Context) {
 	var userInfo request.RegisterUserInfo
 	err := ctx.ShouldBind(&userInfo)
 	if err != nil {
-		log.Println(fmt.Sprintf("submited args err||err=%v", err))
+		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
 		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
 		return
 	}
 	// 注册用户
 	err = userLogic.RegisterUser(ctx, &userInfo)
 	if err != nil {
+		global.GLOBAL_LOG.Error("注册失败", zap.Error(err))
 		global.FailWithMsg(ctx, err.Error())
 		return
 	}

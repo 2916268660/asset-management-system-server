@@ -2,10 +2,10 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"github.com/go-ini/ini"
+	"go.uber.org/zap"
 	"gopkg.in/mail.v2"
-	"log"
+	"server/global"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 func init() {
 	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
-		log.Println("加载配置文件失败", err)
+		global.GLOBAL_LOG.Error("加载配置文件失败", zap.Error(err))
 		return
 	}
 	emailCfg := cfg.Section("email")
@@ -53,7 +53,7 @@ func (e *EmailRequest) SendEmail() error {
 	dialer := mail.NewDialer(host, port, from, auth)
 	err := dialer.DialAndSend(message)
 	if err != nil {
-		log.Println(fmt.Sprintf("send email failed || err=%v", err))
+		global.GLOBAL_LOG.Error("发送邮件失败", zap.Error(err))
 		return errors.New("发送邮件失败")
 	}
 	return nil

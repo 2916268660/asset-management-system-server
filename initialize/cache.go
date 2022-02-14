@@ -2,10 +2,9 @@ package initialize
 
 import (
 	"errors"
-	"fmt"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis"
-	"log"
+	"go.uber.org/zap"
 	"server/global"
 )
 
@@ -18,7 +17,7 @@ var (
 func init() {
 	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
-		log.Println("加载配置文件失败", err)
+		global.GLOBAL_LOG.Error("加载配置文件失败", zap.Error(err))
 		return
 	}
 	redisCfg := cfg.Section("redis")
@@ -36,7 +35,7 @@ func InitCache() error {
 
 	_, err := global.GLOBAL_CACHE.Ping().Result()
 	if err != nil {
-		log.Println(fmt.Sprintf("redis ping failed, err=%v", err))
+		global.GLOBAL_LOG.Error("redis ping failed", zap.Error(err))
 		return errors.New("初始化redis失败")
 	}
 	return nil

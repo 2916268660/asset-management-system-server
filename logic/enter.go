@@ -2,14 +2,16 @@ package logic
 
 import (
 	"server/logic/asset"
+	"server/logic/charger"
+	"server/logic/common"
 	"server/logic/user"
-	"server/logic/utils"
 )
 
 type logicGroup struct {
-	UserLogic  user.LogicGroup
-	UtilsLogic utils.LogicGroup
-	AssetLogic asset.LogicGroup
+	UserLogic    user.LogicGroup
+	CommonLogic  common.LogicGroup
+	AssetLogic   asset.LogicGroup
+	ChargerLogic charger.LogicGroup
 }
 
 var LogicGroupApp = new(logicGroup)

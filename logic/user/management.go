@@ -2,13 +2,13 @@ package user
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"server/global"
-	"server/models/common"
-	"server/models/common/request"
-	"server/models/common/response"
+	"server/model"
+	"server/model/request"
+	"server/model/response"
 	"server/utils"
 	"time"
 )
@@ -18,12 +18,14 @@ type ManagementLogic struct {
 
 // Login 登录
 func (m *ManagementLogic) Login(ctx *gin.Context, loginInfo *request.LoginUserInfo) (token string, err error) {
-	var user *common.User
+	var user *model.SysUser
 	switch loginInfo.Way {
 	case global.WayByUserName: // 通过用户名登录
 		if user, err = loginByUserName(ctx, loginInfo); err != nil {
 			return "", err
 		}
+	default:
+		return "", errors.New("登录方式错误")
 	}
 	// 获取token
 	token, err = global.GetToken(user)
@@ -34,7 +36,7 @@ func (m *ManagementLogic) Login(ctx *gin.Context, loginInfo *request.LoginUserIn
 }
 
 // 通过用户名登录
-func loginByUserName(ctx *gin.Context, loginInfo *request.LoginUserInfo) (user *common.User, err error) {
+func loginByUserName(ctx *gin.Context, loginInfo *request.LoginUserInfo) (user *model.SysUser, err error) {
 	if loginInfo.UserId == "" || loginInfo.Password == "" {
 		return nil, errors.New("学号或密码不能为空")
 	}
@@ -55,8 +57,12 @@ func (m *ManagementLogic) RegisterUser(ctx *gin.Context, info *request.RegisterU
 	if err != nil {
 		return err
 	}
+	err = userModel.FindUserByUserId(ctx, info.UserId)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("用户名已存在")
+	}
 	now := time.Now()
-	user := &common.User{
+	user := &model.SysUser{
 		UserName:   info.UserName,
 		UserId:     info.UserId,
 		Password:   utils.Encrypt(info.Password),
@@ -66,11 +72,9 @@ func (m *ManagementLogic) RegisterUser(ctx *gin.Context, info *request.RegisterU
 		CreateTime: now,
 		UpdateTime: now,
 	}
-	// TODO 判断用户是否已经存在
-
 	err = userModel.SaveUser(ctx, user)
 	if err != nil {
-		log.Println(fmt.Sprintf("userId=%s exist, register failed", info.UserId))
+		global.GLOBAL_LOG.Error("创建用户失败", zap.Any("user", user), zap.Error(err))
 		return errors.New("注册失败")
 	}
 	return nil
@@ -105,7 +109,7 @@ func preCheck(ctx *gin.Context, userInfo *request.RegisterUserInfo) error {
 func (m *ManagementLogic) GetUserInfo(ctx *gin.Context, userId string) (*response.UserInfo, error) {
 	user, err := userModel.GetUserByUserId(ctx, userId)
 	if err != nil {
-		log.Println(fmt.Sprintf("userId=%s get userInfo failed, err=%v", userId, err))
+		global.GLOBAL_LOG.Error("获取用户信息失败", zap.String("userId", userId), zap.Error(err))
 		return nil, errors.New("获取用户信息失败")
 	}
 	userInfo := &response.UserInfo{

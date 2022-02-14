@@ -7,4 +7,3 @@ type RouterGroup struct {
 }
 
 var userApi = v1.ApiGroupApp.UserApi
-var validateApi = v1.ApiGroupApp.ValidateCodeApi

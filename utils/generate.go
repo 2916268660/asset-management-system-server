@@ -3,7 +3,11 @@ package utils
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
+	"image/png"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 )
@@ -28,4 +32,14 @@ const solt = "kjh1k2"
 func Encrypt(password string) string {
 	hash := md5.Sum([]byte(solt + "|" + password))
 	return fmt.Sprintf("%x", hash)
+}
+
+// GetQRCode 生成二维码
+func GetQRCode(serialId string) string {
+	qrCode, _ := qr.Encode("http://192.168.43.222:8080/v1/asset/getAsset/"+serialId, qr.M, qr.Auto)
+	qrCode, _ = barcode.Scale(qrCode, 256, 256)
+	file, _ := os.Create(fmt.Sprintf("qr_code_images/%s.png", serialId))
+	defer file.Close()
+	png.Encode(file, qrCode)
+	return "qr_code_images/" + serialId + ".png"
 }

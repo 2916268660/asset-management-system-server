@@ -2,13 +2,13 @@ package routers
 
 import (
 	"server/routers/asset"
+	"server/routers/common"
 	"server/routers/user"
-	"server/routers/utils"
 )
 
 type routersGroup struct {
 	UserRouterGroup  user.RouterGroup
-	UtilsRouterGroup utils.RouterGroup
+	UtilsRouterGroup common.RouterGroup
 	AssetRouterGroup asset.RouterGroup
 }
 

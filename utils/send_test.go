@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"server/models/common"
+	"server/model"
 	"testing"
 )
 
@@ -14,8 +14,8 @@ func TestSendEmail(t *testing.T) {
 			"1821064662@qq.com",
 			"b.291808981@foxmail.com",
 		},
-		Title: common.EmailTitle_ValidateCode,
-		Body:  fmt.Sprintf(common.EmailBody_validateCode, code),
+		Title: model.EmailTitle_ValidateCode,
+		Body:  fmt.Sprintf(model.EmailBody_validateCode, code),
 	}
 	err := msg.SendEmail()
 	if err != nil {

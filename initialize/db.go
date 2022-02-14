@@ -1,12 +1,12 @@
 package initialize
 
 import (
-	"fmt"
 	"github.com/go-ini/ini"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"log"
+	"server/global"
 )
 
 var dsn string
@@ -14,7 +14,7 @@ var dsn string
 func init() {
 	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
-		log.Println("加载配置文件失败", err)
+		global.GLOBAL_LOG.Error("加载配置文件失败", zap.Error(err))
 		return
 	}
 	mysqlCfg := cfg.Section("mysql")
@@ -28,8 +28,9 @@ func InitDB() *gorm.DB {
 		},
 	})
 	if err != nil {
-		log.Println(fmt.Sprintf("mysql connect fail||err=%v", err))
+		global.GLOBAL_LOG.Error("数据库连接失败", zap.Error(err))
 		return nil
 	}
+	global.GLOBAL_LOG.Debug("数据库连接成功")
 	return db
 }

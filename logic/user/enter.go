@@ -1,11 +1,11 @@
 package user
 
 import (
-	"server/models"
+	"server/repository"
 )
 
 type LogicGroup struct {
 	ManagementLogic
 }
 
-var userModel = models.ModelGroupApp.UserModel
+var userModel = repository.ModelGroupApp.UserModel
