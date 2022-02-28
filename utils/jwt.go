@@ -1,8 +1,9 @@
-package global
+package utils
 
 import (
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
+	"server/global"
 	"server/model"
 	"time"
 )
@@ -17,20 +18,20 @@ func GetToken(user *model.SysUser) (string, error) {
 		user.Department,
 		user.Role,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
+			ExpiresAt: time.Now().Add(global.TokenExpireDuration).Unix(),
 			Issuer:    "root", //签发人
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
-	return token.SignedString(MySecret)
+	return token.SignedString(global.MySecret)
 }
 
 func ParseToken(tokenString string) (*model.MyClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &model.MyClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return MySecret, nil
+		return global.MySecret, nil
 	})
 	if err != nil {
-		GLOBAL_LOG.Error("解析token失败", zap.Error(err))
+		global.GLOBAL_LOG.Error("解析token失败", zap.Error(err))
 		return nil, err
 	}
 	if claims, ok := token.Claims.(*model.MyClaims); ok && token.Valid {

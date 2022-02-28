@@ -36,7 +36,7 @@ func Encrypt(password string) string {
 
 // GetQRCode 生成二维码
 func GetQRCode(serialId string) string {
-	qrCode, _ := qr.Encode("http://192.168.43.222:8080/v1/asset/getAsset/"+serialId, qr.M, qr.Auto)
+	qrCode, _ := qr.Encode("http://localhost:8080/v1/asset/getAsset/"+serialId, qr.M, qr.Auto)
 	qrCode, _ = barcode.Scale(qrCode, 256, 256)
 	file, _ := os.Create(fmt.Sprintf("qr_code_images/%s.png", serialId))
 	defer file.Close()

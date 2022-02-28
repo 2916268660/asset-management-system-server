@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"server/global"
+	"server/utils"
 	"strings"
 )
 
@@ -20,7 +21,7 @@ func JWTAuthMiddleWare() func(ctx *gin.Context) {
 			ctx.Abort()
 			return
 		}
-		mc, err := global.ParseToken(parts[1])
+		mc, err := utils.ParseToken(parts[1])
 		if err != nil {
 			if strings.Contains(err.Error(), "expired") {
 				global.FailWithMsg(ctx, "token失效,请重新登录")

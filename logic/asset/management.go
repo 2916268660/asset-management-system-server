@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"server/model"
 	"server/model/request"
 	"server/model/response"
+	"sync"
 	"time"
 
 	"server/global"
@@ -21,10 +23,6 @@ type ManagementLogic struct {
 
 // ApplyReceive 申请领用资产
 func (m ManagementLogic) ApplyReceive(ctx *gin.Context, applyInfo *request.ApplyReceiveForm) (taskId int64, err error) {
-	// 前置校验
-	if err := preCheckOne(ctx, applyInfo); err != nil {
-		return 0, err
-	}
 	// 获取当前用户信息
 	claims, err := utils.GetClaims(ctx)
 	if err != nil {
@@ -68,32 +66,8 @@ func (m ManagementLogic) ApplyReceive(ctx *gin.Context, applyInfo *request.Apply
 	return
 }
 
-// 前置校验
-func preCheckOne(ctx *gin.Context, info *request.ApplyReceiveForm) error {
-	if info == nil {
-		return errors.New("参数错误")
-	}
-	if info.Category == "" {
-		return errors.New("资产品类不能为空")
-	}
-	if info.Nums <= 0 {
-		return errors.New("申请领用资产数量必须大于0")
-	}
-	if len(info.Remake) > 600 {
-		return errors.New("备注信息超出数字限制")
-	}
-	if info.Days <= 1 {
-		return errors.New("申请天数不能低于1天")
-	}
-	return nil
-}
-
 // ApplyRevert 申请归还资产
 func (m *ManagementLogic) ApplyRevert(ctx *gin.Context, applyInfo *request.ApplyRevertForm) (taskId int64, err error) {
-	if err = preCheckTwo(ctx, applyInfo); err != nil {
-		return 0, err
-	}
-
 	// 获取当前用户信息
 	claims, err := utils.GetClaims(ctx)
 	if err != nil {
@@ -127,24 +101,8 @@ func (m *ManagementLogic) ApplyRevert(ctx *gin.Context, applyInfo *request.Apply
 	return
 }
 
-func preCheckTwo(ctx *gin.Context, info *request.ApplyRevertForm) error {
-	if info == nil {
-		return errors.New("参数有误")
-	}
-	if len(info.Assets) <= 0 {
-		return errors.New("申请归还资产数量必须大于0")
-	}
-	if len(info.Remake) > 600 {
-		return errors.New("备注信息超出数字限制")
-	}
-	return nil
-}
-
 // ApplyRepair 申请维修
 func (m *ManagementLogic) ApplyRepair(ctx *gin.Context, applyInfo *request.ApplyRepairForm) (repairId int64, err error) {
-	if err = preCheckThree(ctx, applyInfo); err != nil {
-		return 0, err
-	}
 	claims, err := utils.GetClaims(ctx)
 	if err != nil {
 		global.GLOBAL_LOG.Error("获取当前用户信息失败", zap.Error(err))
@@ -177,66 +135,63 @@ func (m *ManagementLogic) ApplyRepair(ctx *gin.Context, applyInfo *request.Apply
 	return
 }
 
-func preCheckThree(ctx *gin.Context, info *request.ApplyRepairForm) error {
-	if info == nil {
-		return errors.New("参数有误")
+// AddAssets 添加资产
+func (m *ManagementLogic) AddAssets(ctx *gin.Context, info *request.AssetInfo) error {
+	assets := make([]*model.AssetDetails, 0, info.Nums)
+	wg, lock := sync.WaitGroup{}, sync.Mutex{}
+	wg.Add(info.Nums)
+	for i := 0; i < info.Nums; i++ {
+		go func() {
+			defer wg.Done()
+			// 生成uuid来作为每台资产的序列号
+			// 通过序列号生成对应的二维码，二维码则是对应的资产信息
+			serialId := uuid.NewV4()
+			path := utils.GetQRCode(serialId.String())
+			now := time.Now()
+			asset := &model.AssetDetails{
+				SerialId:   serialId.String(),
+				SerialImg:  path,
+				Category:   info.Category,
+				Name:       info.Name,
+				Status:     global.CanApply,
+				Price:      info.Price,
+				Provide:    info.Provide,
+				CreateTime: now,
+				UpdateTime: now,
+			}
+			lock.Lock()
+			defer lock.Unlock()
+			assets = append(assets, asset)
+		}()
 	}
-	if len(info.Assets) <= 0 {
-		return errors.New("申请报修资产数量必须大于0")
-	}
-	if info.Address == "" && len(info.Address) > 300 {
-		return errors.New("地址字数不能超过100字")
-	}
-	if len(info.Remake) > 600 {
-		return errors.New("备注信息超出数字限制")
-	}
-	return nil
-}
-
-// AddAsset 添加资产
-func (m *ManagementLogic) AddAsset(ctx *gin.Context, info *request.AssetInfo) error {
-	err := preCheckFour(ctx, info)
+	wg.Wait()
+	err := assetModel.CreateAssets(ctx, assets)
 	if err != nil {
-		return err
-	}
-	// 生成uuid来作为每台资产的序列号
-	serialId := uuid.NewV4()
-	// 通过序列号生成对应的二维码，二维码则是对应的资产信息
-	path := utils.GetQRCode(serialId.String())
-	now := time.Now()
-	asset := &model.AssetDetails{
-		SerialId:   serialId,
-		SerialImg:  path,
-		Category:   info.Category,
-		Name:       info.Name,
-		Status:     global.CanApply,
-		Price:      info.Price,
-		Provide:    info.Provide,
-		CreateTime: now,
-		UpdateTime: now,
-	}
-	err = assetModel.CreateAsset(ctx, asset)
-	if err != nil {
-		global.GLOBAL_LOG.Error("新增资产失败", zap.Any("asset", asset), zap.Error(err))
+		global.GLOBAL_LOG.Error("新增资产失败", zap.Error(err))
 		return errors.New("新增资产失败")
 	}
 	return nil
 }
 
-func preCheckFour(ctx *gin.Context, info *request.AssetInfo) error {
-	if info == nil {
-		return errors.New("参数有误")
+// UpdateAsset 更新资产信息
+func (m *ManagementLogic) UpdateAsset(ctx *gin.Context, info *request.UpdateAssetInfo) (asset *model.AssetDetails, err error) {
+	if err := global.GLOBAL_DB.Where("serial_id = ?", info.SerialId).First(&asset).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("资产不存在")
+		}
 	}
-	if info.Name == "" {
-		return errors.New("资产名称不能为空")
+	if err := global.GLOBAL_DB.Model(&asset).Select("category", "name", "price", "provide", "update_time").Where("serial_id = ?", info.SerialId).Updates(
+		map[string]interface{}{
+			"category":    info.Category,
+			"name":        info.Name,
+			"price":       info.Price,
+			"provide":     info.Provide,
+			"update_time": time.Now(),
+		}).Error; err != nil {
+		global.GLOBAL_LOG.Error("更新资产信息失败", zap.String("serial_id", info.SerialId), zap.Error(err))
+		return nil, errors.New("更新失败")
 	}
-	if info.Price <= 0 {
-		return errors.New("资产价格不能小于0")
-	}
-	if info.Category == "" {
-		return errors.New("资产的种类不能为空")
-	}
-	return nil
+	return asset, nil
 }
 
 // GetReceiveTodo 获取领用待办

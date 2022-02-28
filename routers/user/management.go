@@ -13,9 +13,13 @@ func (m ManagementRouter) InitUserRouters(router *gin.RouterGroup) {
 	{
 		// 注册
 		group.POST("register", userApi.RegisterUser)
+		// 批量注册
+		group.POST("register2", userApi.RegisterUsers)
 		// 登录
 		group.POST("login", userApi.Login)
 		// 获取用户信息
 		group.GET("details", middleware.JWTAuthMiddleWare(), userApi.GetUserInfo)
+		// 给用户设置部门管理员
+		group.POST("setRole", middleware.JWTAuthMiddleWare(), middleware.Casbin(), userApi.SetRole)
 	}
 }

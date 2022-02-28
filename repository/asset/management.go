@@ -30,8 +30,8 @@ func (m *ManagementModel) CreateRepair(ctx *gin.Context, repair *model.AssetRepa
 	return repair.ID, nil
 }
 
-func (m *ManagementModel) CreateAsset(ctx *gin.Context, asset *model.AssetDetails) error {
-	if err := global.GLOBAL_DB.Create(asset).Error; err != nil {
+func (m *ManagementModel) CreateAssets(ctx *gin.Context, assets []*model.AssetDetails) error {
+	if err := global.GLOBAL_DB.Create(assets).Error; err != nil {
 		return err
 	}
 	return nil

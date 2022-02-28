@@ -9,7 +9,7 @@ type ManagementRouter struct {
 }
 
 func (m *ManagementRouter) InitAssetRouters(router *gin.RouterGroup) {
-	group := router.Group("asset", middleware.JWTAuthMiddleWare())
+	group := router.Group("asset", middleware.JWTAuthMiddleWare(), middleware.Casbin())
 	{
 		// 申请领用资产
 		group.POST("applyReceive", assetApi.ApplyReceive)
@@ -19,6 +19,10 @@ func (m *ManagementRouter) InitAssetRouters(router *gin.RouterGroup) {
 		group.POST("applyRepair", assetApi.ApplyRepair)
 		// 录入资产
 		group.POST("addAsset", assetApi.AddAsset)
+		// 删除资产
+		group.GET("delAsset/:serialId", assetApi.DelAsset)
+		// 更新资产信息
+		group.PUT("updateAsset", assetApi.UpdateAsset)
 		// 获取某个资产信息
 		group.GET("getAsset/:serialId", assetApi.GetAssets)
 		// 获取所有资产信息

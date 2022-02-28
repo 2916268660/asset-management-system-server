@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/golang-jwt/jwt"
-	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -33,7 +32,7 @@ type SysUser struct {
 // AssetDetails 资产信息表
 type AssetDetails struct {
 	ID         int64     `json:"-"`          // 主键ID
-	SerialId   uuid.UUID `json:"serialId"`   // 资产序列号
+	SerialId   string    `json:"serialId"`   // 资产序列号
 	SerialImg  string    `json:"serialImg"`  // 资产序列号的二维码路径
 	Category   string    `json:"category"`   // 资产品类
 	Name       string    `json:"name"`       // 资产名称
@@ -122,8 +121,8 @@ type AssetRepairs struct {
 	RollbackTime  time.Time
 }
 
-// Charger 部门负责人表
-type Charger struct {
+// Department 部门负责人表
+type Department struct {
 	ID         int64  // 主键ID
 	Department string // 部门名称
 	UserId     string // 负责人的ID

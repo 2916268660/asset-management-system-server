@@ -10,7 +10,7 @@ import (
 )
 
 type Factory interface {
-	// GetTodo 获取待办事件
+	// Get提交的信息不合规, 请仔细检查后再次提交 获取待办事件
 	GetTodo(ctx *gin.Context) (res []*response.Function, err error)
 	// GetDone 获取已完成事件
 	GetDone(ctx *gin.Context) (res []*response.Function, err error)

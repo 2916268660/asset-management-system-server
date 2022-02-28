@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"server/global"
 	"server/model"
 	"strings"
 
@@ -19,7 +18,7 @@ func GetClaims(ctx *gin.Context) (claims *model.MyClaims, err error) {
 	if !(len(parts) == 2 && parts[0] == "Bearer") {
 		return nil, errors.New("token格式有误")
 	}
-	claims, err = global.ParseToken(parts[1])
+	claims, err = ParseToken(parts[1])
 	if err != nil {
 		if strings.Contains(err.Error(), "expired") {
 			return nil, errors.New("token失效,请重新登录")

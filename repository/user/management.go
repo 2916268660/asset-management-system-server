@@ -32,14 +32,14 @@ func (m *ManagementModel) SaveUser(ctx *gin.Context, user *model.SysUser) error 
 	return nil
 }
 
-func (m *ManagementModel) FindUserByUserId(ctx *gin.Context, userId string) error {
-	var user *model.SysUser
-	return global.GLOBAL_DB.Where("user_id=?", userId).First(&user).Error
+func (m *ManagementModel) FindUserByUserId(ctx *gin.Context, userId string) (user *model.SysUser, err error) {
+	err = global.GLOBAL_DB.Where("user_id=?", userId).First(&user).Error
+	return
 }
 
 // GetChargerByDepart 获取部门负责人信息
-func (m ManagementModel) GetChargerByDepart(ctx *gin.Context, department string) (user *model.SysUser, err error) {
-	var charger *model.Charger
+func (m *ManagementModel) GetChargerByDepart(ctx *gin.Context, department string) (user *model.SysUser, err error) {
+	var charger *model.Department
 	if err = global.GLOBAL_DB.Where("department=?", department).First(&charger).Error; err != nil {
 		global.GLOBAL_LOG.Error("获取部门负责人失败", zap.String("department", department), zap.Error(err))
 		return nil, err

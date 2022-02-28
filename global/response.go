@@ -1,14 +1,15 @@
 package global
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	
+	"github.com/gin-gonic/gin"
 )
 
 type ResponseData struct {
-	Code int
-	Msg  string
-	Data interface{}
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
 
 const (

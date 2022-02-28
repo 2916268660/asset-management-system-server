@@ -3,10 +3,13 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"os"
+	"path"
 	"server/global"
 	"server/model/request"
 	"server/model/response"
 	"server/utils"
+	"time"
 )
 
 type ManagementApi struct {
@@ -17,7 +20,7 @@ func (m *ManagementApi) Login(ctx *gin.Context) {
 	var userInfo request.LoginUserInfo
 	if err := ctx.ShouldBind(&userInfo); err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
 	if userInfo.Way <= 0 {
@@ -39,7 +42,7 @@ func (m *ManagementApi) RegisterUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(&userInfo)
 	if err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
 	// 注册用户
@@ -50,6 +53,32 @@ func (m *ManagementApi) RegisterUser(ctx *gin.Context) {
 		return
 	}
 	global.OkWithMsg(ctx, "注册成功")
+}
+
+// RegisterUsers 上传文件批量注册用户
+func (m *ManagementApi) RegisterUsers(ctx *gin.Context) {
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		global.GLOBAL_LOG.Error("解析表单错误", zap.Error(err))
+		global.FailWithMsg(ctx, "解析表单错误")
+		return
+	}
+	uuid := time.Now().Unix()
+	fileName := string(uuid) + "_" + file.Filename
+	dst := path.Join("./upload", fileName)
+	if ok, _ := utils.PathExists("upload"); !ok { // 判断是否有upload文件夹
+		_ = os.Mkdir("upload", os.ModePerm)
+	}
+	err = ctx.SaveUploadedFile(file, dst)
+	if err != nil {
+		global.FailWithMsg(ctx, file.Filename+"上传失败")
+	}
+	err = userLogic.Register2(ctx, dst)
+	if err != nil {
+		global.FailWithMsg(ctx, err.Error())
+		return
+	}
+	global.OkWithMsg(ctx, "录入成功")
 }
 
 // GetUserInfo 获取用户相信信息
@@ -66,4 +95,24 @@ func (m *ManagementApi) GetUserInfo(ctx *gin.Context) {
 		Phone:      claims.Phone,
 		Department: claims.Department,
 	})
+}
+
+// SetRole 给用户设置角色
+func (m *ManagementApi) SetRole(ctx *gin.Context) {
+	var info *request.UserRole
+	err := ctx.ShouldBind(&info)
+	if err != nil {
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
+		return
+	}
+	if info.UserId == "" {
+		global.FailWithMsg(ctx, "用户不存在")
+		return
+	}
+	err = userLogic.SetRole(ctx, info)
+	if err != nil {
+		global.FailWithMsg(ctx, err.Error())
+		return
+	}
+	global.OkWithMsg(ctx, "用户角色设置成功, 请重新登录之后生效")
 }

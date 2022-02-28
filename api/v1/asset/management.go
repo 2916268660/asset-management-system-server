@@ -18,7 +18,7 @@ func (m *ManagementApi) ApplyReceive(ctx *gin.Context) {
 	var applyInfo *request.ApplyReceiveForm
 	if err := ctx.ShouldBind(&applyInfo); err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
 	taskId, err := assetLogic.ApplyReceive(ctx, applyInfo)
@@ -35,7 +35,7 @@ func (m *ManagementApi) ApplyRevert(ctx *gin.Context) {
 	var applyInfo *request.ApplyRevertForm
 	if err := ctx.ShouldBind(&applyInfo); err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
 	taskId, err := assetLogic.ApplyRevert(ctx, applyInfo)
@@ -51,7 +51,7 @@ func (m *ManagementApi) ApplyRepair(ctx *gin.Context) {
 	var applyInfo *request.ApplyRepairForm
 	if err := ctx.ShouldBind(&applyInfo); err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
 	repairId, err := assetLogic.ApplyRepair(ctx, applyInfo)
@@ -67,15 +67,53 @@ func (m *ManagementApi) AddAsset(ctx *gin.Context) {
 	var assetInfo *request.AssetInfo
 	if err := ctx.ShouldBind(&assetInfo); err != nil {
 		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
-		global.FailWithMsg(ctx, "提交的信息有误，请仔细检查后再次提交")
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
 		return
 	}
-	err := assetLogic.AddAsset(ctx, assetInfo)
+	err := assetLogic.AddAssets(ctx, assetInfo)
 	if err != nil {
 		global.FailWithMsg(ctx, err.Error())
 		return
 	}
 	global.OkWithMsg(ctx, "新增资产成功")
+}
+
+// DelAsset 删除资产
+func (m *ManagementApi) DelAsset(ctx *gin.Context) {
+	serialId := ctx.Param("serialId")
+	if serialId == "" {
+		global.GLOBAL_LOG.Error("资产序列号为空")
+		global.FailWithMsg(ctx, "资产不存在")
+		return
+	}
+	asset := &model.AssetDetails{}
+	if err := global.GLOBAL_DB.Where("serial_id = ?", serialId).Delete(&asset).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			global.GLOBAL_LOG.Error("资产序列号不存在", zap.String("serial_id", serialId))
+			global.FailWithMsg(ctx, "资产不存在")
+			return
+		}
+		global.GLOBAL_LOG.Error("删除资产失败", zap.Error(err))
+		global.FailWithMsg(ctx, "删除失败")
+		return
+	}
+	global.Ok(ctx)
+}
+
+// UpdateAsset 更新资产信息
+func (m *ManagementApi) UpdateAsset(ctx *gin.Context) {
+	var assetInfo *request.UpdateAssetInfo
+	if err := ctx.ShouldBind(&assetInfo); err != nil {
+		global.GLOBAL_LOG.Error("提交的信息有误", zap.Error(err))
+		global.FailWithMsg(ctx, "提交的信息不合规, 请仔细检查后再次提交")
+		return
+	}
+	asset, err := assetLogic.UpdateAsset(ctx, assetInfo)
+	if err != nil {
+		global.FailWithMsg(ctx, err.Error())
+		return
+	}
+	global.OkWithDetails(ctx, "更新成功", asset)
 }
 
 // GetAssets 获取资产信息
