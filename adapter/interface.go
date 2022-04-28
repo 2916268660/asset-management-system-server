@@ -2,29 +2,29 @@ package adapter
 
 import (
 	"github.com/gin-gonic/gin"
-	"server/adapter/charger"
-	"server/adapter/provider"
-	"server/adapter/user"
+	"server/adapter/receive"
+	"server/adapter/repairs"
+	"server/adapter/revert"
 	"server/global"
-	"server/model/response"
 )
 
-type Factory interface {
-	// Get提交的信息不合规, 请仔细检查后再次提交 获取待办事件
-	GetTodo(ctx *gin.Context) (res []*response.Function, err error)
-	// GetDone 获取已完成事件
-	GetDone(ctx *gin.Context) (res []*response.Function, err error)
+type Adapter interface {
+	// 新增记录
+	Add(ctx *gin.Context, info interface{}) error
+	// 详情
+	Details(ctx *gin.Context, id int64) (error, interface{})
+	// 更改状态
+	UpdateStatus(ctx *gin.Context, id int64, status int) error
 }
 
-// NewFactory 简单工厂模式  不同角色实现不同的方法
-func NewFactory(ctx *gin.Context, role string, userId string) Factory {
-	switch role {
-	case global.User:
-		return &user.Adapter{UserId: userId}
-	case global.Charger:
-		return &charger.Adapter{UserId: userId}
-	case global.Provider:
-		return &provider.Adapter{UserId: userId}
+func NewAdapter(ctx *gin.Context, kind string) Adapter {
+	switch kind {
+	case global.Receive:
+		return &receive.Adapter{}
+	case global.Revert:
+		return &revert.Adapter{}
+	case global.Repairs:
+		return &repairs.Adapter{}
 	}
 	return nil
 }

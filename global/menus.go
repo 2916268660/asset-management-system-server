@@ -11,6 +11,11 @@ var RoleMenusMap = map[string][]*response.Menu{
 			Path:     "/home",
 		},
 		&response.Menu{
+			ID:       10,
+			AuthName: "我的资产",
+			Path:     "/asset",
+		},
+		&response.Menu{
 			ID:       2,
 			AuthName: "我的待办",
 			Path:     "",
@@ -38,6 +43,11 @@ var RoleMenusMap = map[string][]*response.Menu{
 			ID:       1,
 			AuthName: "首页",
 			Path:     "/home",
+		},
+		&response.Menu{
+			ID:       10,
+			AuthName: "我的资产",
+			Path:     "/asset",
 		},
 		&response.Menu{
 			ID:       2,
@@ -81,24 +91,12 @@ var RoleMenusMap = map[string][]*response.Menu{
 		&response.Menu{
 			ID:       7,
 			AuthName: "用户管理",
-			Path:     "",
-			Children: []*response.Menu{
-				&response.Menu{
-					ID:       8,
-					AuthName: "权限管理",
-					Path:     "/auth",
-				},
-				&response.Menu{
-					ID:       9,
-					AuthName: "账号管理",
-					Path:     "/user",
-				},
-			},
+			Path:     "/user",
 		},
 		&response.Menu{
-			ID:       10,
+			ID:       11,
 			AuthName: "资产管理",
-			Path:     "/asset",
+			Path:     "/assetForAdmin",
 		},
 	},
 }

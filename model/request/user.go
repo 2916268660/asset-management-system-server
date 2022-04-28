@@ -15,7 +15,7 @@ type RegisterUserInfo struct {
 // LoginUserInfo 用户登录
 type LoginUserInfo struct {
 	UserId   string `json:"userId" binding:"required"`                //用户名 唯一
-	Password string `json:"password" binding:"required,min=6,max=16"` //密码
+	Password string `json:"password" binding:"required,min=3,max=16"` //密码
 	Email    string `json:"email"`                                    //邮箱
 	Phone    string `json:"phone"`                                    //电话
 	Way      int    `json:"way" binding:"required"`                   //登录方式  1：账户密码  2：邮箱验证码  3：电话验证码
@@ -31,4 +31,9 @@ type UserRole struct {
 	UserId     string `json:"userId" binding:"required"`
 	Department string `json:"department" binding:"required"`
 	Role       string `json:"role" binding:"required"`
+}
+
+type PasswordInfo struct {
+	UserId   string `json:"userId"`
+	Password string `json:"password"`
 }

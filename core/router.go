@@ -24,6 +24,5 @@ func InitRouters() *gin.Engine {
 		utilsRouters.InitUtilsRouters(v1Router)
 		assetRouters.InitAssetRouters(v1Router)
 	}
-
 	return router
 }

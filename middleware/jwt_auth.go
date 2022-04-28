@@ -17,14 +17,14 @@ func JWTAuthMiddleWare() func(ctx *gin.Context) {
 		}
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			global.FailWithMsg(ctx, "token错误")
+			global.FailWithMsg(ctx, "身份失效,请重新登录")
 			ctx.Abort()
 			return
 		}
 		mc, err := utils.ParseToken(parts[1])
 		if err != nil {
 			if strings.Contains(err.Error(), "expired") {
-				global.FailWithMsg(ctx, "token失效,请重新登录")
+				global.FailWithMsg(ctx, "身份失效,请重新登录")
 				ctx.Abort()
 				return
 			}

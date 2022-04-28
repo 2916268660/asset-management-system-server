@@ -7,90 +7,146 @@ const (
 	Provider = "provider"
 )
 
+var RoleMap = map[string]string{
+	User:     "普通用户",
+	Charger:  "部门负责人",
+	Provider: "资产管理员",
+}
+
+var Role = map[string]string{
+	"普通用户":  User,
+	"部门负责人": Charger,
+	"资产管理员": Provider,
+}
 var PoliciesList = [][]string{
 	{
 		User,
-		"/applyReceive",
+		"/v1/asset/applyReceive",
 		"POST",
 	},
 	{
 		User,
-		"/applyRevert",
+		"/v1/asset/applyRevert",
 		"POST",
 	},
 	{
 		User,
-		"/applyRepair",
+		"/v1/asset/applyRepair",
 		"POST",
 	},
 	{
 		User,
-		"/getAsset",
+		"/v1/asset/getAsset",
 		"GET",
 	},
 	{
 		User,
-		"/getReceiveTodo",
+		"/v1/asset/getReceiveTodo",
 		"GET",
 	},
 	{
 		User,
-		"/getRevertTodo",
+		"/v1/asset/getRevertTodo",
 		"GET",
 	},
 	{
 		User,
-		"/getRepairsTodo",
+		"/v1/asset/getRepairsTodo",
 		"GET",
 	},
 	{
 		User,
-		"/rollback",
+		"/v1/asset/rollback",
+		"POST",
+	},
+	{
+		User,
+		"/v1/asset/getTodoDetails",
+		"GET",
+	},
+	{
+		User,
+		"/v1/asset/getAssetsByUser",
+		"GET",
+	},
+	{
+		User,
+		"/v1/updateUser",
+		"PUT",
+	},
+	{
+		User,
+		"/v1/updatePass",
+		"PUT",
+	},
+	{
+		Charger,
+		"/v1/asset/applyReceive",
 		"POST",
 	},
 	{
 		Charger,
-		"/applyReceive",
+		"/v1/asset/applyRevert",
 		"POST",
 	},
 	{
 		Charger,
-		"/applyRevert",
+		"/v1/asset/applyRepair",
 		"POST",
 	},
 	{
 		Charger,
-		"/applyRepair",
+		"/v1/asset/getAsset",
+		"GET",
+	},
+	{
+		Charger,
+		"/v1/asset/getReceiveTodo",
+		"GET",
+	},
+	{
+		Charger,
+		"/v1/asset/getRevertTodo",
+		"GET",
+	},
+	{
+		Charger,
+		"/v1/asset/getRepairsTodo",
+		"GET",
+	},
+	{
+		Charger,
+		"/v1/asset/rollback",
 		"POST",
 	},
 	{
 		Charger,
-		"/getAsset",
+		"/v1/asset/getAuditTodo",
 		"GET",
 	},
 	{
 		Charger,
-		"/getReceiveTodo",
+		"/v1/asset/getTodoDetails",
 		"GET",
 	},
 	{
 		Charger,
-		"/getRevertTodo",
+		"/v1/asset/getAssetsByUser",
 		"GET",
 	},
 	{
 		Charger,
-		"/getRepairsTodo",
-		"GET",
-	},
-	{
-		Charger,
-		"/rollback",
+		"/v1/asset/audit",
 		"POST",
 	},
 	{
 		Charger,
-		"/getAuditTodo",
-		"GET",
+		"/v1/updateUser",
+		"PUT",
+	},
+	{
+		Charger,
+		"/v1/updatePass",
+		"PUT",
 	},
 }

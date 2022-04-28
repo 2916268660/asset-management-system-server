@@ -7,3 +7,4 @@ type RouterGroup struct {
 }
 
 var commonApi = v1.ApiGroupApp.CommonApi
+var assetApi = v1.ApiGroupApp.AssetApi

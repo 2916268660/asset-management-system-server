@@ -18,5 +18,6 @@ func main() {
 	}
 	global.GLOBAL_LOG.Debug("redis conn succeed")
 	r := core.InitRouters()
+	// todo 初始化casbinapi权限列表 routes := r.Routes()
 	r.Run()
 }

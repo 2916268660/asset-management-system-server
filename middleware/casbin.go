@@ -17,7 +17,7 @@ func Casbin() func(ctx *gin.Context) {
 			return
 		}
 		enforcer := utils.InitCasbin()
-		path := ctx.Request.URL.Path[9:]
+		path := ctx.Request.URL.Path
 		method := ctx.Request.Method
 		if claims.Role == "" {
 			global.GLOBAL_LOG.Error("用户角色为空", zap.String("userId", claims.UserId))

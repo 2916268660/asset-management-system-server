@@ -55,30 +55,30 @@ type AssetUseRecord struct {
 
 // AssetReceive 领取单表
 type AssetReceive struct {
-	ID            int64     // 主键ID
-	UserId        string    // 申请人账号
-	UserName      string    // 申请人姓名
-	UserPhone     string    // 申请人联系方式
-	Department    string    // 申请人所属部门
-	Category      string    // 资产品类
-	Nums          int       // 申请资产数量
-	Days          int       // 申请天数
-	Assets        string    // 资产的序列号json字符串
-	AdminId       string    // 同意领用管理员的账号
-	AdminName     string    // 同意领用管理员的姓名
-	AdminPhone    string    // 同意领用管理员的联系方式
-	ProviderId    string    // 发放资产人的账号
-	ProviderName  string    // 发放资产人的姓名
-	ProviderPhone string    // 发放资产人的联系方式
-	SignPath      string    // 电子签名生成的图片的存贮地址
-	Remake        string    // 备注信息
-	Status        int       // 任务单状态
-	ExpireTime    time.Time // 到期时间
-	ProvideTime   time.Time // 发放时间
-	CreateTime    time.Time // 申请时间
-	AuditTime     time.Time // 审批时间
-	UpdateTime    time.Time // 更新时间
-	RollbackTime  time.Time // 撤回时间
+	ID            int64     `json:"id"`                          // 主键ID
+	UserId        string    `json:"userId"`                      // 申请人账号
+	UserName      string    `json:"userName"`                    // 申请人姓名
+	UserPhone     string    `json:"userPhone"`                   // 申请人联系方式
+	Department    string    `json:"department"`                  // 申请人所属部门
+	Category      string    `json:"category"`                    // 资产品类
+	Nums          int       `json:"nums"`                        // 申请资产数量
+	Days          int       `json:"days"`                        // 申请天数
+	Assets        string    `json:"assets" gorm:"default: '[]'"` // 资产的序列号json字符串
+	AdminId       string    `json:"adminId"`                     // 同意领用管理员的账号
+	AdminName     string    `json:"adminName"`                   // 同意领用管理员的姓名
+	AdminPhone    string    `json:"adminPhone"`                  // 同意领用管理员的联系方式
+	ProviderId    string    `json:"providerId"`                  // 发放资产人的账号
+	ProviderName  string    `json:"providerName"`                // 发放资产人的姓名
+	ProviderPhone string    `json:"providerPhone"`               // 发放资产人的联系方式
+	SignPath      string    `json:"-"`                           // 电子签名生成的图片的存贮地址
+	Remake        string    `json:"remake"`                      // 备注信息
+	Status        int       `json:"status"`                      // 任务单状态
+	ExpireTime    time.Time `json:"-"`                           // 到期时间
+	ProvideTime   time.Time `json:"-"`                           // 发放时间
+	CreateTime    time.Time `json:"-"`                           // 申请时间
+	AuditTime     time.Time `json:"-"`                           // 审批时间
+	UpdateTime    time.Time `json:"-"`                           // 更新时间
+	RollbackTime  time.Time `json:"-"`                           // 撤回时间
 }
 
 type AssetRevert struct {
@@ -90,9 +90,9 @@ type AssetRevert struct {
 	Category       string    // 资产品类
 	Nums           int       // 申请资产数量
 	Assets         string    // 资产的序列号json字符串
-	ReclaimerId    string    // 同意领用管理员的账号
-	ReclaimerName  string    // 同意领用管理员的姓名
-	ReclaimerPhone string    // 同意领用管理员的联系方式
+	ReclaimerId    string    // 同意回收管理员的账号
+	ReclaimerName  string    // 同意回收管理员的姓名
+	ReclaimerPhone string    // 同意回收管理员的联系方式
 	SignPath       string    // 电子签名生成的图片的存贮地址
 	Remake         string    // 备注信息
 	Status         int       // 任务单状态
@@ -126,4 +126,18 @@ type Department struct {
 	ID         int64  // 主键ID
 	Department string // 部门名称
 	UserId     string // 负责人的ID
+}
+
+type PageType struct {
+	PageNum  int `json:"pageNum" binding:"required,min=1"`
+	PageSize int `json:"pageSize" binding:"required,min=1"`
+}
+
+type UserAssets struct {
+	ID         int64     `json:"-"`
+	SerialId   string    `json:"serialId"`
+	UserId     string    `json:"userId"`
+	Status     int       `json:"status"`
+	CreateTime time.Time `json:"createTime"`
+	ExpireTime time.Time `json:"expireTime"`
 }
