@@ -3,6 +3,7 @@ package asset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"server/model"
@@ -80,24 +81,42 @@ func (m *ManagementLogic) ApplyRevert(ctx *gin.Context, applyInfo *request.Apply
 		global.GLOBAL_LOG.Error("json 转化失败", zap.Error(err))
 		return 0, err
 	}
-	task := &model.AssetRevert{
-		UserId:       claims.UserId,
-		UserName:     claims.UserName,
-		UserPhone:    claims.Phone,
-		Department:   claims.Department,
-		Nums:         len(applyInfo.Assets),
-		Assets:       string(assets),
-		Remake:       applyInfo.Remake,
-		Status:       global.Reverting,
-		CreateTime:   now,
-		RevertTime:   time.Unix(0, 0),
-		UpdateTime:   now,
-		RollbackTime: time.Unix(0, 0),
-	}
-	taskId, err = assetModel.CreateRevert(ctx, task)
-	if err != nil {
-		return 0, errors.New("发起申请失败")
-	}
+	err = global.GLOBAL_DB.Transaction(func(tx *gorm.DB) error {
+		task := &model.AssetRevert{
+			UserId:       claims.UserId,
+			UserName:     claims.UserName,
+			UserPhone:    claims.Phone,
+			Department:   claims.Department,
+			Nums:         len(applyInfo.Assets),
+			Assets:       string(assets),
+			Remake:       applyInfo.Remake,
+			Status:       global.Reverting,
+			CreateTime:   now,
+			RevertTime:   time.Unix(0, 0),
+			UpdateTime:   now,
+			RollbackTime: time.Unix(0, 0),
+		}
+		if err = tx.Table("asset_revert").Create(task).Error; err != nil {
+			return errors.New("创建归还单失败")
+		}
+		// 遍历要归还的资产，并查询出每个资产的状态，如果状态为归还中，则不能再进行归还， 如果不为归还中状态，则将资产改为归还中状态
+		for _, asset := range applyInfo.Assets {
+			revert := &model.AssetRevert{}
+			if err = tx.Table("asset_details").Select("status").Where("serial_id = ?", asset).Find(&revert).Error; err != nil {
+				return errors.New("获取资产状态失败")
+			}
+			if revert.Status == global.Reverting {
+				return errors.New(fmt.Sprintf("不能重复归还同一资产%s", asset))
+			}
+			if revert.Status == global.WaitRepair {
+				return errors.New(fmt.Sprintf("资产正在维修，不能归还%s", asset))
+			}
+			if err = tx.Table("asset_details").Where("serial_id = ?", asset).Update("status", global.Reverting).Error; err != nil {
+				return errors.New(fmt.Sprintf("更新资产状态失败%s", asset))
+			}
+		}
+		return nil
+	})
 	return
 }
 
@@ -114,18 +133,20 @@ func (m *ManagementLogic) ApplyRepair(ctx *gin.Context, applyInfo *request.Apply
 	}
 	now := time.Now()
 	repair := &model.AssetRepairs{
-		UserId:       claims.UserId,
-		UserName:     claims.UserName,
-		UserPhone:    claims.Phone,
-		Address:      applyInfo.Address,
-		Assets:       string(assets),
-		Remake:       applyInfo.Remake,
-		Status:       global.WaitReceive,
-		CreateTime:   now,
-		UpdateTime:   time.Unix(0, 0),
-		ReceiveTime:  time.Unix(0, 0),
-		RepairedTime: time.Unix(0, 0),
-		RollbackTime: time.Unix(0, 0),
+		UserId:        claims.UserId,
+		UserName:      claims.UserName,
+		UserPhone:     claims.Phone,
+		RepairerName:  "王师傅",
+		RepairerPhone: "17634802262",
+		Address:       applyInfo.Address,
+		Assets:        string(assets),
+		Remake:        applyInfo.Remake,
+		Status:        global.WaitRepair,
+		CreateTime:    now,
+		UpdateTime:    time.Unix(0, 0),
+		ReceiveTime:   time.Unix(0, 0),
+		RepairedTime:  time.Unix(0, 0),
+		RollbackTime:  time.Unix(0, 0),
 	}
 	repairId, err = assetModel.CreateRepair(ctx, repair)
 	if err != nil {
@@ -247,7 +268,7 @@ func (m *ManagementLogic) GetRepairsTodo(ctx *gin.Context, page *model.PageType)
 	if err != nil {
 		return nil, 0, err
 	}
-	repairs, total, err := assetModel.GetRepairsByUser(ctx, claims.UserId, global.WaitReceive, page)
+	repairs, total, err := assetModel.GetRepairsByUser(ctx, claims.UserId, global.WaitRepair, page)
 	if err != nil {
 		global.GLOBAL_LOG.Error("获取维修待办失败", zap.String("user_id", claims.UserId), zap.Error(err))
 		return nil, 0, errors.New("获取维修待办失败, 请稍后重试")
@@ -334,6 +355,7 @@ func (m *ManagementLogic) GetProviderTodo(ctx *gin.Context, page *model.PageType
 // Rollback 撤回申请 todo 如果单子处于完成状态 不可撤回申请
 func (m *ManagementLogic) Rollback(ctx *gin.Context, info *request.RollbackInfo) error {
 	tableName := ""
+	status := 0
 	if info.ID <= 0 {
 		return errors.New("该申请不存在")
 	}
@@ -342,23 +364,60 @@ func (m *ManagementLogic) Rollback(ctx *gin.Context, info *request.RollbackInfo)
 		tableName = "asset_receive"
 	case global.Revert:
 		tableName = "asset_revert"
+		status = global.Applied
 	case global.Repairs:
 		tableName = "asset_repairs"
+		status = global.Applied
 	default:
 		return errors.New("非法操作")
 	}
 	now := time.Now()
-	if err := global.GLOBAL_DB.Table(tableName).Select("status", "update_time", "rollback_time").
-		Where("id=?", info.ID).
-		Updates(map[string]interface{}{
-			"status":        global.Rollback,
-			"update_time":   now,
-			"rollback_time": now,
-		}).Error; err != nil {
-		global.GLOBAL_LOG.Error("更新撤回状态失败", zap.Int64("id", info.ID), zap.String("category", info.Category), zap.Error(err))
-		return errors.New("撤回申请失败")
-	}
-	return nil
+	err := global.GLOBAL_DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table(tableName).Select("status", "update_time", "rollback_time").
+			Where("id=?", info.ID).
+			Updates(map[string]interface{}{
+				"status":        global.Rollback,
+				"update_time":   now,
+				"rollback_time": now,
+			}).Error; err != nil {
+			global.GLOBAL_LOG.Error("更新撤回状态失败", zap.Int64("id", info.ID), zap.String("category", info.Category), zap.Error(err))
+			return errors.New("撤回申请失败")
+		}
+		// 获取订单中的资产列表，将资产列表的所有资产还原之前的状态
+		if tableName == "asset_receive" {
+			return nil
+		}
+		var assets []string
+		if tableName == "asset_revert" {
+			res := &model.AssetRevert{}
+			if err := tx.Table(tableName).Select("assets").Where("id = ?", info.ID).Find(&res).Error; err != nil {
+				return errors.New("获取资产信息失败")
+			}
+			err := json.Unmarshal([]byte(res.Assets), &assets)
+			if err != nil {
+				return errors.New("反序列化错误")
+			}
+		}
+		if tableName == "asset_repairs" {
+			res := &model.AssetRepairs{}
+			if err := tx.Table(tableName).Select("assets").Where("id = ?", info.ID).Find(&res).Error; err != nil {
+				return errors.New("获取资产信息失败")
+			}
+			err := json.Unmarshal([]byte(res.Assets), &assets)
+			if err != nil {
+				return errors.New("反序列化错误")
+			}
+		}
+
+		for _, asset := range assets {
+			if err := tx.Table("asset_details").Select("status").Where("serial_id = ?", asset).Update("status", status).Error; err != nil {
+				continue
+			}
+		}
+		return nil
+	})
+
+	return err
 }
 
 // GetTodoDetails 获取某个待办的详情信息
@@ -513,7 +572,6 @@ func (m *ManagementLogic) ProvideAsset(ctx *gin.Context, receive *request.Receiv
 			record := &model.UserAssets{
 				SerialId:   asset,
 				UserId:     receive.UserId,
-				Status:     global.Applied,
 				CreateTime: now,
 				ExpireTime: now.AddDate(0, 0, receive.Days),
 			}

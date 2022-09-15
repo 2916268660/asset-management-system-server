@@ -314,9 +314,13 @@ func (m *ManagementApi) GetAssetsByUser(ctx *gin.Context) {
 	for _, asset := range assets {
 		tmp := &response.AssetsInfo{
 			SerialId:   asset.SerialId,
-			Status:     asset.Status,
 			ExpireTime: asset.ExpireTime.Unix(),
 		}
+		revert := model.AssetRevert{}
+		if err = global.GLOBAL_DB.Table("asset_details").Where("serial_id = ?", asset.SerialId).Select("status").Find(&revert).Error; err != nil {
+			continue
+		}
+		tmp.Status = revert.Status
 		res = append(res, tmp)
 	}
 	global.OkWithDetails(ctx, "", map[string]interface{}{

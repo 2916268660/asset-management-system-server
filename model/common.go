@@ -137,7 +137,6 @@ type UserAssets struct {
 	ID         int64     `json:"-"`
 	SerialId   string    `json:"serialId"`
 	UserId     string    `json:"userId"`
-	Status     int       `json:"status"`
 	CreateTime time.Time `json:"createTime"`
 	ExpireTime time.Time `json:"expireTime"`
 }
